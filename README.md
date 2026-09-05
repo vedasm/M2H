@@ -265,13 +265,3 @@ docker compose up --build -d
 ## 📄 License
 
 MIT © 2025 – Your Name / Organization
-
----
-
-## 🙏 Acknowledgements
-
-- [Python‑Markdown](https://python-markdown.github.io/)
-- [bleach](https://github.com/mozilla/bleach)
-- [WeasyPrint](https://weasyprint.org/)
-- Fonts: **Inter**, **Lora**, **JetBrains Mono** (Google Fonts)
-- Icons: Inline SVG / Unicode
