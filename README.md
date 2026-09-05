@@ -264,4 +264,4 @@ docker compose up --build -d
 
 ## 📄 License
 
-MIT © 2025 – Your Name / Organization
+MIT © 2025 – vedasm
