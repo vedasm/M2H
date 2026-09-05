@@ -1,0 +1,9 @@
+Flask
+Flask-CORS
+Flask-SQLAlchemy
+markdown
+bleach
+PyJWT
+Werkzeug
+psycopg2-binary
+sqlalchemy-libsql; platform_system != "Windows"

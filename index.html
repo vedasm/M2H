@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Markdown to HTML Blog Post Converter — write, preview, copy, and export."
+    />
+    <title>M2H — Markdown to HTML</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <header class="app-header" role="banner">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true"
+          ><svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            height="20px"
+            fill="currentColor"
+          >
+            <path
+              d="M400-280h160v-80H400v80Zm0-160h280v-80H400v80ZM280-600h400v-80H280v80Zm200 120ZM80-80v-80h102q-48-23-77.5-68T75-330q0-79 55.5-134.5T265-520v80q-45 0-77.5 32T155-330q0 39 24 69t61 38v-97h80v240H80Zm320-40v-80h360v-560H200v160h-80v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H400Z"
+            /></svg
+        ></span>
+        <span class="brand-name">M2H</span>
+        <span class="brand-sub">Markdown → HTML</span>
+      </div>
+      <nav class="controls" role="toolbar" aria-label="Editor actions">
+        <button
+          class="btn btn--outline"
+          id="btn-outline"
+          aria-label="Toggle document outline"
+          title="Outline (headings map)"
+          aria-expanded="false"
+        >
+          <span class="btn-icon" aria-hidden="true">≡</span>
+          <span class="btn-label">Outline</span>
+        </button>
+        <button
+          class="btn btn--ghost"
+          id="btn-theme"
+          aria-label="Toggle dark mode"
+          title="Toggle theme"
+        >
+          <span class="btn-icon" aria-hidden="true">◑</span>
+          <span class="btn-label">Theme</span>
+        </button>
+        <div class="controls-divider" aria-hidden="true"></div>
+        <button
+          class="btn btn--outline"
+          id="btn-copy"
+          aria-label="Copy HTML code to clipboard"
+          title="Copy HTML"
+        >
+          <span class="btn-icon" aria-hidden="true">⊡</span>
+          <span class="btn-label">Copy HTML</span>
+        </button>
+        <button
+          class="btn btn--outline"
+          id="btn-download"
+          aria-label="Download as index.html"
+          title="Download HTML"
+        >
+          <span class="btn-icon" aria-hidden="true">↓</span>
+          <span class="btn-label">Download</span>
+        </button>
+        <button
+          class="btn btn--danger"
+          id="btn-clear"
+          aria-label="Clear all content"
+          title="Clear canvas"
+        >
+          <span class="btn-icon" aria-hidden="true">✕</span>
+          <span class="btn-label">Clear</span>
+        </button>
+        <div class="controls-divider" aria-hidden="true"></div>
+        <div id="auth-controls"></div>
+      </nav>
+    </header>
+    <aside
+      class="outline-panel"
+      id="outline-panel"
+      aria-label="Document outline"
+      hidden
+    >
+      <div class="outline-panel-header">
+        <span>Outline</span>
+        <button class="outline-close" id="outline-close" aria-label="Close outline">✕</button>
+      </div>
+      <ol class="outline-list" id="outline-list">
+        <li class="outline-empty">Headings you write (# through ######) will show up here.</li>
+      </ol>
+    </aside>
+    <main class="workspace" role="main">
+      <section class="panel panel--editor" aria-label="Markdown input panel">
+        <div class="panel-header">
+          <span class="panel-label">
+            Markdown
+          </span>
+          <span class="panel-hint" id="editor-hint" aria-live="polite"
+            >Start writing below</span
+          >
+        </div>
+
+        <div
+          class="format-toolbar"
+          role="toolbar"
+          aria-label="Markdown formatting"
+        >
+          <button
+            class="format-btn"
+            type="button"
+            data-format="bold"
+            aria-label="Bold"
+            title="Bold (Ctrl/Cmd+B)"
+          >
+            <strong>B</strong>
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="italic"
+            aria-label="Italic"
+            title="Italic (Ctrl/Cmd+I)"
+          >
+            <em>I</em>
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="heading"
+            aria-label="Heading"
+            title="Heading"
+          >
+            H
+          </button>
+          <span class="format-divider" aria-hidden="true"></span>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="link"
+            aria-label="Link"
+            title="Link (Ctrl/Cmd+K)"
+          >
+            ↗
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="code"
+            aria-label="Inline code"
+            title="Inline code"
+          >
+            `
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="quote"
+            aria-label="Blockquote"
+            title="Blockquote"
+          >
+            ❯
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="bullet"
+            aria-label="Bulleted list"
+            title="Bulleted list"
+          >
+            •
+          </button>
+          <button
+            class="format-btn"
+            type="button"
+            data-format="rule"
+            aria-label="Horizontal rule"
+            title="Horizontal rule"
+          >
+            ―
+          </button>
+        </div>
+
+        <div class="editor-wrap">
+          <div class="line-numbers" id="line-numbers" aria-hidden="true"></div>
+
+          <textarea
+            id="md-input"
+            class="md-textarea"
+            spellcheck="true"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            aria-label="Markdown input area"
+            aria-describedby="editor-hint"
+            placeholder="# Start writing your blog post…
+
+Write in **Markdown** and watch it render live on the right.
+
+## What you can do
+- Format text with *italics* and **bold**
+- Add `inline code` or full code blocks
+- Insert > blockquotes for emphasis
+- Create [links](https://example.com) and images
+
+---
+*Your work is auto-saved to localStorage — no refreshes lost.*"
+          ></textarea>
+        </div>
+
+        <footer class="panel-footer">
+          <div class="counter-group">
+            <span class="counter" id="char-count" title="Character count"
+              >0 chars</span
+            >
+            <span class="counter-sep" aria-hidden="true">·</span>
+            <span class="counter" id="word-count" title="Word count"
+              >0 words</span
+            >
+            <span class="counter-sep" aria-hidden="true">·</span>
+            <span class="counter" id="line-count" title="Line count"
+              >1 line</span
+            >
+          </div>
+          <span
+            class="save-indicator"
+            id="save-indicator"
+            aria-live="polite"
+            aria-atomic="true"
+          ></span>
+        </footer>
+
+      </section>
+      <div
+        class="resize-handle"
+        id="resize-handle"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Drag to resize panels"
+        tabindex="0"
+      ></div>
+      <aside class="panel panel--preview" aria-label="Live HTML preview panel">
+        <div class="panel-header">
+          <span class="panel-label">
+            Preview
+          </span>
+          <span
+            class="panel-hint"
+            id="preview-status"
+            aria-live="polite"
+            aria-atomic="true"
+            >Live</span
+          >
+        </div>
+
+        <div class="preview-scroll">
+          <article
+            id="preview-output"
+            class="preview-content blog-typography"
+            aria-label="Rendered HTML preview"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div class="preview-empty">
+              <p class="preview-empty-text">
+                Your rendered post will appear here
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <footer class="panel-footer panel-footer--preview">
+          <span class="counter" id="read-time" title="Estimated reading time"
+            >~0 min read</span
+          >
+          <span class="counter-sep" aria-hidden="true">·</span>
+          <span class="counter" id="html-size" title="Output HTML size"
+            >0 B</span
+          >
+        </footer>
+      </aside>
+    </main>
+    <div
+      class="modal-backdrop"
+      id="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-desc"
+      hidden
+    >
+      <div class="modal">
+        <div class="modal-icon" aria-hidden="true">⚠</div>
+        <h2 class="modal-title" id="modal-title">Clear everything?</h2>
+        <p class="modal-desc" id="modal-desc">
+          This will permanently erase your Markdown content and remove it from
+          localStorage. This action cannot be undone.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn--outline modal-cancel" id="modal-cancel">
+            Keep writing
+          </button>
+          <button class="btn btn--danger modal-confirm" id="modal-confirm">
+            Yes, clear it
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop"
+      id="login-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-title"
+      aria-describedby="login-desc"
+      hidden
+    >
+      <div class="modal">
+        <h2 class="modal-title" id="login-title">Login</h2>
+        <form id="login-form" class="auth-form">
+          <div class="form-group">
+            <label for="login-username">Username</label>
+            <input
+              type="text"
+              id="login-username"
+              name="username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn--outline auth-switch"
+              data-target="register-modal"
+            >
+              Create account
+            </button>
+            <button type="submit" class="btn btn--primary">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop"
+      id="register-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="register-title"
+      aria-describedby="register-desc"
+      hidden
+    >
+      <div class="modal">
+        <h2 class="modal-title" id="register-title">Create Account</h2>
+        <form id="register-form" class="auth-form">
+          <div class="form-group">
+            <label for="register-username">Username</label>
+            <input
+              type="text"
+              id="register-username"
+              name="username"
+              required
+              minlength="3"
+              maxlength="80"
+              pattern="[A-Za-z0-9_]+"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="register-password">Password</label>
+            <input
+              type="password"
+              id="register-password"
+              name="password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn--outline auth-switch"
+              data-target="login-modal"
+            >
+              Already have an account
+            </button>
+            <button type="submit" class="btn btn--primary">Register</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      class="toast"
+      id="toast"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      hidden
+    ></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
