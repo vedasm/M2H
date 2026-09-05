@@ -72,10 +72,10 @@ The server serves the static `index.html` at `/` and the API under `/api/*`.
 Example `.env` (create in project root):
 
 ```
-JWT_SECRET=super-secret-random-string-32chars!!
-DATABASE_URL=sqlite:///users.db
+TURSO_DATABASE_URL=libsql://your-database-your-org.turso.io
+TURSO_AUTH_TOKEN=your-turso-token
+JWT_SECRET=your-long-random-secret
 FLASK_ENV=production
-PORT=8000
 ```
 
 Load it with `python-dotenv` if you add the package.

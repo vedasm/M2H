@@ -14,7 +14,19 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
 # Config
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+engine_options = {}
+turso_url = os.environ.get('TURSO_DATABASE_URL')
+if turso_url:
+    turso_host = turso_url.removeprefix('libsql://').removeprefix('https://')
+    database_url = f'sqlite+libsql://{turso_host}?secure=true'
+    engine_options['connect_args'] = {
+        'auth_token': os.environ.get('TURSO_AUTH_TOKEN', '')
+    }
+elif database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_options
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET'] = os.environ.get('JWT_SECRET', 'dev-only-change-me-use-env-in-production-32')
 app.config['JWT_EXP_DELTA_SECONDS'] = 86400  # 24h

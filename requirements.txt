@@ -5,3 +5,5 @@ markdown
 bleach
 PyJWT
 Werkzeug
+psycopg2-binary
+sqlalchemy-libsql
