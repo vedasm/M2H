@@ -1,9 +1,9 @@
 'use strict';
 
-const STORAGE_KEY   = 'inkwell_md_content';
-const STORAGE_THEME = 'inkwell_theme';
-const STORAGE_TOKEN = 'inkwell_token';
-const STORAGE_USERNAME = 'inkwell_username';
+const STORAGE_KEY   = 'm2h_md_content';
+const STORAGE_THEME = 'm2h_theme';
+const STORAGE_TOKEN = 'm2h_token';
+const STORAGE_USERNAME = 'm2h_username';
 const DEBOUNCE_MS   = 80;
 const API_BASE      = window.location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
 
@@ -622,7 +622,7 @@ const ClearModal = (() => {
 })();
 
 const ResizeManager = (() => {
-  const STORAGE_KEY_SPLIT = 'inkwell_split';
+  const STORAGE_KEY_SPLIT = 'm2h_split';
   let dragging = false;
   let startX, startWidth;
 
@@ -754,12 +754,12 @@ function attachEventListeners() {
 
   dom.resizeHandle.addEventListener('dblclick', () => {
     dom.editorPanel.style.flex = '0 0 50%';
-    localStorage.setItem('inkwell_split', '50.00%');
+    localStorage.setItem('m2h_split', '50.00%');
     ToastManager.show('Split reset to 50 / 50', 'info');
   });
 }
 
-const DEFAULT_CONTENT = `# Welcome to Inkwell ✦
+const DEFAULT_CONTENT = `# Welcome to M2H ✦
 
 A **distraction-free** Markdown editor that converts your writing to clean HTML in real-time.
 
