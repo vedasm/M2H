@@ -17,9 +17,13 @@ I built this after one too many blog drafts written in Markdown and hand-copied 
 - **Accounts** — username/password auth with JWTs. Right now it just gates the editor; it's the seam for per-user draft storage later.
 - **The usual editor stuff** — dark mode, auto-save, resizable panes, and `Ctrl/Cmd+B/I/K` shortcuts. Theme and draft persist in `localStorage`; the pane split is draggable and remembers your ratio.
 
-## Stack
+## Tech Stack
 
-Flask backend — `markdown` for parsing, `bleach` for sanitising, `Flask-SQLAlchemy` + `PyJWT` for auth. Frontend is plain HTML/CSS/JS: no build step, no framework, readable by just opening the files.
+- Backend: Flask, Flask-CORS, Flask-SQLAlchemy, PyJWT, Werkzeug
+- Markdown parsing: `markdown` (with `extra`, `nl2br`, `sane_lists`)
+- Sanitisation: `bleach`
+- Database: SQLite (`instance/users.db`)
+- Frontend: vanilla ES6 + CSS
 
 ## Running it
 
