@@ -293,10 +293,8 @@ def convert():
     
     # Convert markdown to HTML
     html = convert_markdown_to_html(markdown_text)
-    
     # Calculate all statistics
     stats = calculate_statistics(markdown_text, html)
-    
     return jsonify({
         'html': html,
         'stats': stats

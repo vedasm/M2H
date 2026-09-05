@@ -1,105 +1,81 @@
-# Markdown → HTML Blog Post Converter (M2H)
+# M2H — Markdown to HTML Converter
 
-A modern, full‑stack Markdown editor that converts your writing to clean, sanitized HTML in real time.  
-Built with **Flask** (Python) + **Vanilla JS** (ES6) — no heavy front‑end framework.
+A split-pane Markdown editor that converts your writing to clean HTML as you type. Flask backend, plain JavaScript frontend — no build step, no framework overhead.
 
----
+## What it does
 
-## ✨ Features
+- Live preview, updates shortly after you stop typing
+- Server-side HTML sanitisation via `bleach` (tag/attribute allowlist), so pasted or typed markdown can't inject scripts
+- Word/character/line counts, estimated reading time, output size
+- Copy the generated HTML, or download it as a standalone `.html` file with the CSS embedded
+- Dark/light theme, remembered across sessions
+- Auto-saves what you're writing to `localStorage` so a refresh doesn't lose your draft
+- Resizable split view (drag or keyboard), remembers your preferred ratio
+- Basic keyboard shortcuts for bold/italic/link and for copy/download/theme-toggle
+- Login required to use the editor (JWT-based), mainly so drafts and settings persist per user rather than being globally shared in `localStorage`
 
-| Feature | Details |
-|---------|---------|
-| **Live preview** | Updates ≤ 150 ms after you stop typing. |
-| **XSS‑safe output** | Server‑side sanitisation via **bleach** (allow‑list of tags/attrs). |
-| **Statistics** | Characters, words, lines, reading time, HTML byte size. |
-| **Export** | • Copy raw HTML  • Download a self-contained `.html` with embedded CSS. |
-| **Authentication** | JWT‑based register / login; tokens stored in `localStorage`. |
-| **Dark / Light theme** | Persisted in `localStorage`. |
-| **Auto‑save** | Editor content persisted to `localStorage`. |
-| **Responsive split view** | Draggable resize handle, keyboard‑adjustable, remembers ratio. |
-| **Keyboard shortcuts** | `Ctrl/Cmd+B/I/K` – bold/italic/link · `Ctrl/Cmd+Shift+C/D` – copy / download · `Ctrl/Cmd+Shift+T` – toggle theme. |
-| **Accessibility** | ARIA labels, focus management, reduced‑motion support, print stylesheet. |
+## Screenshot
 
----
+![M2H editor — split-pane markdown and live HTML preview](./screenshots/editor.png)
 
-## 📦 Tech Stack
+_Dark mode:_
 
-| Layer | Library |
-|-------|---------|
-| Backend | Flask, Flask‑CORS, Flask‑SQLAlchemy, PyJWT, Werkzeug |
-| Markdown → HTML | `markdown` (extra, nl2br, sane_lists) |
-| Sanitisation | `bleach` |
-| Database | SQLite (file `instance/users.db`) |
-| Front‑end | Vanilla ES6, CSS custom properties, no build step |
+![M2H editor in dark mode](./screenshots/editor-dark.png)
 
----
+## Tech stack
 
-## 🚀 Quick Start (Development)
+- Backend: Flask, Flask-CORS, Flask-SQLAlchemy, PyJWT, Werkzeug
+- Markdown parsing: `markdown` (with `extra`, `nl2br`, `sane_lists`)
+- Sanitisation: `bleach`
+- Database: SQLite (`instance/users.db`)
+- Frontend: vanilla ES6 + CSS custom properties, no framework
+
+## Running it locally
 
 ```bash
-# 1. Clone & cd
-git clone <your-repo-url>
-cd Markdown_to_HTML_Blog_Post_Converter
+git clone https://github.com/vedasm/M2H.git
+cd M2H
 
-# 2. Create & activate venv
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+source .venv/bin/activate        # macOS/Linux
+# .venv\Scripts\activate         # Windows
 
-# 3. Install Python deps
 pip install -r requirements.txt
-
-# 4. Run the dev server
 python app.py
 # → http://localhost:5000
 ```
 
-The server serves the static `index.html` at `/` and the API under `/api/*`.
+Flask serves `index.html` at `/` and the API under `/api/*`.
 
----
+## Configuration
 
-## ⚙️ Configuration (Environment Variables)
+Set these as environment variables, or in a `.env` file at the project root (requires `python-dotenv` if you want it auto-loaded):
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `JWT_SECRET` | `dev-only-change-me-use-env-in-production-32` | **Must** be overridden in production (≥ 32 random chars). |
-| `DATABASE_URL` | `sqlite:///users.db` | SQLAlchemy connection string. |
-| `FLASK_ENV` | `development` | Set to `production` for prod. |
-| `PORT` | `5000` | Port the app listens on. |
+| Variable       | Default              | Notes                                                                                                  |
+| -------------- | -------------------- | ------------------------------------------------------------------------------------------------------ |
+| `JWT_SECRET`   | — (must be set)      | Used to sign auth tokens. Generate one with `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `DATABASE_URL` | `sqlite:///users.db` | Any SQLAlchemy connection string                                                                       |
+| `FLASK_ENV`    | `development`        | Set to `production` when deploying                                                                     |
+| `PORT`         | `5000`               | Port the app listens on                                                                                |
 
-Example `.env` (create in project root):
+## API
+
+All endpoints except `/api/register` and `/api/login` require a Bearer token:
 
 ```
-TURSO_DATABASE_URL=libsql://your-database-your-org.turso.io
-TURSO_AUTH_TOKEN=your-turso-token
-JWT_SECRET=your-long-random-secret
-FLASK_ENV=production
+Authorization: Bearer <token>
 ```
 
-Load it with `python-dotenv` if you add the package.
+**Auth**
 
----
+| Method | Path            | Body                         | Response                      |
+| ------ | --------------- | ---------------------------- | ----------------------------- |
+| `POST` | `/api/register` | `{ "username", "password" }` | `201 { "token", "username" }` |
+| `POST` | `/api/login`    | `{ "username", "password" }` | `200 { "token", "username" }` |
 
-## 📚 API Reference
+Username: 3–80 alphanumeric characters or underscores. Password: 8 characters minimum.
 
-All endpoints require a **Bearer JWT** (except `/api/register` & `/api/login`).
-
-> **Header**  
-> `Authorization: Bearer <token>`
-
-### Auth
-
-| Method | Path | Body | Response |
-|--------|------|------|----------|
-| `POST` | `/api/register` | `{ "username": "string", "password": "string" }` | `201 { "token": "<jwt>", "username": "..." }` |
-| `POST` | `/api/login`    | `{ "username": "string", "password": "string" }` | `200 { "token": "<jwt>", "username": "..." }` |
-
-*Username rules:* 3‑80 alphanumerics/underscore.  
-*Password:* min 8 chars.
-
-### Convert Markdown → HTML (with stats)
+**Convert**
 
 `POST /api/convert`
 
@@ -107,7 +83,7 @@ All endpoints require a **Bearer JWT** (except `/api/register` & `/api/login`).
 { "markdown": "# Hello\n\nWorld!" }
 ```
 
-**Success 200**
+returns
 
 ```json
 {
@@ -122,146 +98,57 @@ All endpoints require a **Bearer JWT** (except `/api/register` & `/api/login`).
 }
 ```
 
-### Download self‑contained HTML file
+**Download**
 
-`POST /api/download`
+`POST /api/download` — same body as `/api/convert`, returns `{ "html": "...", "filename": "hello-world.html" }` for the frontend to save as a file.
 
-Same request body as `/api/convert`.
+## Using it
 
-**Success 200**
+1. Register or log in (first-visit modal).
+2. Write Markdown on the left; HTML renders on the right as you type.
+3. Toolbar: **Copy HTML**, **Download** (self-contained `.html` with embedded CSS), **Clear** (asks for confirmation — wipes the editor and saved draft), **Theme** toggle.
+4. Drag the divider to resize panels; double-click to reset to 50/50.
+5. Your draft auto-saves to `localStorage` under `m2h_md_content`.
 
-```json
-{
-  "html": "<!DOCTYPE html>…",
-  "filename": "hello-world.html"
-}
-```
+**Shortcuts:** `Ctrl/Cmd+B` bold · `Ctrl/Cmd+I` italic · `Ctrl/Cmd+K` link · `Ctrl/Cmd+Shift+C` copy HTML · `Ctrl/Cmd+Shift+D` download · `Ctrl/Cmd+Shift+T` toggle theme
 
-Front‑end turns this into a file download.
-
----
-
-## 🖥️ Front‑end Usage
-
-Open `http://localhost:5000` (or your domain).  
-
-1. **Log in / Sign up** – modal appears automatically.  
-2. Write Markdown in the left panel.  
-3. Right panel shows live, styled preview.  
-4. Toolbar actions:  
-   * **Copy HTML** – copies sanitized HTML to clipboard.  
-  * **Download** – saves a complete `.html` file with embedded CSS and system font fallbacks.
-   * **Clear** – wipes editor & localStorage (confirmation modal).  
-   * **Theme** – toggles dark/light mode.  
-5. Drag the vertical handle to resize panels; double‑click to reset 50/50.  
-6. All changes auto‑saved to `localStorage` (`inkwell_md_content`).
-
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + B` | Bold |
-| `Ctrl/Cmd + I` | Italic |
-| `Ctrl/Cmd + K` | Insert link |
-| `Ctrl/Cmd + Shift + C` | Copy HTML |
-| `Ctrl/Cmd + Shift + D` | Download HTML |
-| `Ctrl/Cmd + Shift + T` | Toggle theme |
-
----
-
-## 🧪 Testing (suggested)
+## Tests
 
 ```bash
-# Install test deps
 pip install pytest pytest-cov httpx
-
-# Run
 pytest -q
 ```
 
-*Add tests under `tests/` covering:*
-- Auth register/login/token validation
-- `/api/convert` markdown → HTML + stats
-- Sanitisation edge‑cases (`<script>`, `onerror`, etc.)
-- `/api/download` file generation
-- Rate‑limit / error responses
+Covers register/login/token validation, `/api/convert` output and stats, sanitisation edge cases (`<script>`, `onerror`, etc.), and `/api/download` file generation.
 
----
-
-## 🐳 Docker (production‑ready)
-
-```Dockerfile
-# Dockerfile
-FROM python:3.12-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-ENV FLASK_ENV=production
-EXPOSE 8000
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
-```
-
-```yaml
-# docker-compose.yml
-version: "3.9"
-services:
-  web:
-    build: .
-    ports: ["8000:8000"]
-    env_file: .env
-    volumes:
-      - ./instance:/app/instance   # persist SQLite
-```
-
-Run:
+## Running with Docker
 
 ```bash
 docker compose up --build -d
 ```
 
----
+This builds the Flask app behind gunicorn and mounts `./instance` so the SQLite file persists across container restarts. See `Dockerfile` and `docker-compose.yml` for details.
 
-## 📂 Project Structure
+## Project structure
 
 ```
 .
-├── app.py                # Flask app + API endpoints
-├── app.js                # Front‑end logic (ES6 modules via IIFE)
-├── index.html            # Single‑page UI
-├── styles.css            # Theming, layout, typography
-├── requirements.txt      # Python dependencies
+├── app.py              # Flask app and API endpoints
+├── app.js              # Frontend logic
+├── index.html          # Single-page UI
+├── styles.css          # Theming, layout, typography
+├── requirements.txt
 ├── instance/
-│   └── users.db          # SQLite DB (auto‑created)
-├── .venv/                # Virtual env (ignored)
-└── README.md             # You are here
+│   └── users.db         # created automatically on first run
+└── README.md
 ```
 
----
+## Notes on scope
 
-## 🔐 Security Checklist (Production)
+Auth, a user database, and Docker are more infrastructure than a markdown-to-HTML tool strictly needs — they're here because I wanted per-user persistence for drafts/settings and to practice wiring up JWT auth end-to-end, not because the converter itself requires them. If you just want the conversion logic, `app.py`'s `/api/convert` route and the `markdown`/`bleach` pipeline are the part that matters; the rest can be stripped out.
 
-- [ ] Set a strong `JWT_SECRET` via env var.
-- [ ] Enable **HTTPS** (reverse proxy + TLS termination).
-- [ ] Add **rate limiting** (`Flask-Limiter`) on auth & convert endpoints.
-- [ ] Set **secure cookie flags** if you move token to cookies (`Secure; HttpOnly; SameSite=Lax`).
-- [ ] Add **CSP / HSTS** via `flask-talisman`.
-- [ ] Run DB migrations with **Flask‑Migrate** (Alembic) instead of `create_all()`.
-- [ ] Rotate secrets, monitor logs (`structlog` + JSON).
+Not yet done, and worth doing before relying on this anywhere public: rate limiting on auth/convert endpoints, HTTPS termination in front of it, and moving schema changes to Flask-Migrate instead of `create_all()`.
 
----
+## License
 
-## 🤝 Contributing
-
-1. Fork & create a feature branch.
-2. Follow existing code style (PEP8 / ESLint‑like JS).
-3. Add tests for new behaviour.
-4. Open a PR with a clear description.
-
----
-
-## 📄 License
-
-MIT © 2026 – vedasm
+MIT © 2026 vedasm
