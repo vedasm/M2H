@@ -60,6 +60,11 @@ html[data-theme="dark"] {
   --info-soft: rgba(56, 189, 248, 0.14);
 }
 
+html[data-theme="dark"] .blog-typography pre {
+  background: #0e0c08;
+  color: var(--ink);
+}
+
 *,
 *::before,
 *::after {
